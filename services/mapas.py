@@ -1,5 +1,6 @@
 import requests
 
+from services import zonas
 from services.motor_rutas import seleccionar_mejor_ruta
 from services.casetas import encontrar_peajes
 from services.zonas import zonas_intersectan_ruta
@@ -278,6 +279,12 @@ def calcular_viaje(
         (punto["lat"], punto["lng"])
         for punto in analisis_ruta["coordinates"]
     ]
+
+    # Reducir puntos para evitar timeout en rutas largas
+    puntos_ruta = puntos_ruta[::10]
+    
+    peajes, fuente_peajes = encontrar_peajes(seleccionada, clave_api, tiempo_espera)
+    zonas_intersectadas = zonas_intersectan_ruta(puntos_ruta, zonas)
 
     peajes, fuente_peajes = encontrar_peajes(seleccionada, clave_api, tiempo_espera)
     zonas_intersectadas = zonas_intersectan_ruta(puntos_ruta, zonas)
