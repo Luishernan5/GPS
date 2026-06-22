@@ -12,7 +12,7 @@ class Configuracion:
     Geocoding API y Routes API en el mismo proyecto de Google Cloud.
     """
 
-    CLAVE_API_GOOGLE = "CLAVE_API_GOOGLE_AQUI"  # Reemplaza con tu clave real
+    CLAVE_API_GOOGLE = "AIzaSyBI7-JK1Ll0OQGwG7n0tTdkQAYRDN4f094"  # Reemplaza con tu clave real
 
     TIPO_VEHICULO_PREDETERMINADO = "GASOLINE"
     PRECIO_GASOLINA_MXN = 23.99
