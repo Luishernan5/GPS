@@ -51,6 +51,8 @@ def geocodificar(direccion, clave_api, tiempo_espera=35):
     )
     respuesta.raise_for_status()
     contenido = respuesta.json()
+    print("GEOCODING RESPONSE:")
+    print(contenido)
 
     if contenido.get("status") != "OK" or not contenido.get("results"):
         print("RESPUESTA GEOCODING:", contenido)
