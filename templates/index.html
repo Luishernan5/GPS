@@ -4,128 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RutaSegura — Planificador de viajes seguros</title>
-    <!-- Fuentes modernas -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Un solo archivo CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
 <body>
     <main id="mapa" aria-label="Mapa interactivo del planificador"></main>
 
-    <!-- Botón flotante para mostrar el panel izquierdo (oculto por defecto cuando el panel está visible) -->
-    <button id="botonAbrirPanel" class="floating-menu hidden" type="button" aria-label="Abrir panel de planificación">☰</button>
+    <!-- Botones flotantes (ahora se adaptan a las nuevas posiciones) -->
+    <button id="botonAbrirPanelIzquierdo" class="floating-btn floating-btn-left hidden" type="button" aria-label="Abrir panel de zonas">🛡️</button>
+    <button id="botonAbrirPanelDerecho" class="floating-btn floating-btn-right hidden" type="button" aria-label="Abrir panel de ruta">☰</button>
+    <button id="botonAbrirResultados" class="floating-btn floating-btn-bottom hidden" type="button" aria-label="Mostrar resultados">📊</button>
 
-    <!-- ==================== PANEL IZQUIERDO: FORMULARIO DE VIAJE ==================== -->
+    <!-- ========== PANEL IZQUIERDO (ahora Zonas de Riesgo) ========== -->
     <aside id="panelControl" class="panel-left">
         <div class="brand-row">
-            <div class="logo-dot">RS</div>
+            <div class="logo-dot">🛡️</div>
             <div class="brand-text">
                 <span class="brand-eyebrow">RutaSegura</span>
-                <span class="brand-title">Planificador inteligente</span>
+                <span class="brand-title">Zonas de riesgo</span>
             </div>
-            <button id="botonCerrarPanel" class="icon-btn" type="button" aria-label="Ocultar panel lateral" style="margin-left:auto;">✕</button>
+            <button id="botonCerrarPanelIzquierdo" class="icon-btn" type="button" aria-label="Ocultar panel izquierdo" style="margin-left:auto;">✕</button>
         </div>
-
-        <span class="section-label">📍 Punto de partida</span>
-        <div class="input-row">
-            <span class="point-dot origin">A</span>
-            <input id="entradaOrigen" type="text" autocomplete="off" placeholder="Escribe una dirección o selecciona en el mapa">
-            <button id="botonLimpiarOrigen" class="clear-button" type="button" aria-label="Borrar origen">×</button>
+        <div class="zones-actions">
+            <button id="botonAlternarZonas" class="btn btn-primary btn-sm" type="button">👁️ Mostrar / ocultar zonas</button>
+            <button id="botonAgregarZona" class="btn btn-outline btn-sm" type="button">➕ Registrar nueva área</button>
         </div>
+        <p class="map-hint">Administra las áreas peligrosas para que el sistema las evite al calcular rutas.</p>
+    </aside>
 
-        <span class="section-label">🏁 Punto de destino</span>
-        <div class="input-row">
-            <span class="point-dot dest">B</span>
-            <input id="entradaDestino" type="text" autocomplete="off" placeholder="Escribe una dirección o selecciona en el mapa">
-            <button id="botonLimpiarDestino" class="clear-button" type="button" aria-label="Borrar destino">×</button>
-        </div>
-
-        <span class="section-label">⚙️ Configuración del vehículo</span>
-        <div class="two-columns">
-            <div>
-                <select id="selectorVehiculo" aria-label="Tipo de vehículo">
-                    <option value="GASOLINE">🚗 Turismo</option>
-                    <option value="TRUCK">🚛 Camión</option>
-                </select>
+    <!-- ========== PANEL DERECHO (ahora Formulario de Ruta) ========== -->
+    <aside class="panel-right" id="panelZonas">
+        <div class="brand-row">
+            <div class="logo-dot">📍</div>
+            <div class="brand-text">
+                <span class="brand-eyebrow">Planificador</span>
+                <span class="brand-title">Nueva ruta</span>
             </div>
-            <div>
-                <input id="entradaRendimiento" type="number" min="1" max="100" step="0.1" placeholder="Consumo (km/l)" aria-label="Rendimiento en kilómetros por litro">
+            <button id="botonCerrarPanelDerecho" class="icon-btn" type="button" aria-label="Ocultar panel derecho" style="margin-left:auto;">✕</button>
+        </div>
+
+        <div class="sortable-sections" id="sortableSections">
+            <div class="form-section-draggable">
+                <span class="section-label">📍 Punto de partida</span>
+                <div class="input-row">
+                    <span class="point-dot origin">A</span>
+                    <input id="entradaOrigen" type="text" autocomplete="off" placeholder="Escribe o elige en el mapa">
+                    <button id="botonLimpiarOrigen" class="clear-button" type="button" aria-label="Borrar origen">×</button>
+                </div>
+            </div>
+            <div class="form-section-draggable">
+                <span class="section-label">🏁 Punto de destino</span>
+                <div class="input-row">
+                    <span class="point-dot dest">B</span>
+                    <input id="entradaDestino" type="text" autocomplete="off" placeholder="Escribe o elige en el mapa">
+                    <button id="botonLimpiarDestino" class="clear-button" type="button" aria-label="Borrar destino">×</button>
+                </div>
+            </div>
+            <div class="form-section-draggable">
+                <span class="section-label">⚙️ Configuración del vehículo</span>
+                <div class="two-columns">
+                    <div>
+                        <select id="selectorVehiculo" aria-label="Tipo de vehículo">
+                            <option value="GASOLINE">🚗 Turismo</option>
+                            <option value="TRUCK">🚛 Camión</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input id="entradaRendimiento" type="number" min="1" max="100" step="0.1" placeholder="Consumo (km/l)">
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="button-row">
             <button id="botonCalcular" class="btn btn-primary" type="button">🚀 Buscar ruta óptima</button>
-            <button id="botonLimpiarTodo" class="btn btn-secondary" type="button">🧹 Reiniciar campos</button>
+            <button id="botonLimpiarTodo" class="btn btn-outline" type="button">🧹 Reiniciar</button>
         </div>
-        <p class="map-hint">💡 O usa el mapa: un clic para origen, otro para destino.</p>
-
+        <p class="map-hint">💡 También puedes usar el mapa: un clic para origen, otro para destino.</p>
         <div id="cajaMensaje" class="message-box hidden" role="status"></div>
     </aside>
 
-    <!-- ==================== PANEL DERECHO: GESTIÓN DE ZONAS DE RIESGO ==================== -->
-    <aside class="panel-right" id="panelZonas">
-        <div class="section-header">
-            <div class="icon-circle">🛡️</div>
-            <h2>Alertas de riesgo</h2>
-        </div>
-        <div class="zones-actions">
-            <button id="botonAlternarZonas" class="btn btn-danger-light btn-sm" type="button">👁️ Mostrar / ocultar zonas</button>
-            <button id="botonAgregarZona" class="btn btn-secondary btn-sm" type="button">➕ Registrar nueva área</button>
-        </div>
-        <p style="color:var(--text-muted);font-size:0.7rem;margin-top:10px;line-height:1.5;">Gestiona las áreas peligrosas para que el sistema las evite al trazar rutas.</p>
-    </aside>
-
-    <!-- ==================== BARRA INFERIOR: RESULTADOS DEL TRAYECTO ==================== -->
-    <section id="panelResultados" class="results-bar hidden" aria-live="polite">
+    <!-- ========== BARRA INFERIOR (Resultados) ========== -->
+    <section id="panelResultados" class="results-bar" aria-live="polite">
         <div class="results-header">
             <h2>📋 Resumen del trayecto</h2>
-            <span id="insigniaAdvertenciaZona" class="warning-badge hidden">⚠️ Zona peligrosa en ruta</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <span id="insigniaAdvertenciaZona" class="warning-badge hidden">⚠️ Zona peligrosa en ruta</span>
+                <button id="botonCerrarResultados" class="icon-btn" type="button" aria-label="Ocultar resultados">✕</button>
+            </div>
         </div>
-
         <div class="metric-strip">
-            <article class="metric-card">
-                <span class="metric-label">Distancia total</span>
-                <strong class="metric-value" id="valorDistancia">0 km</strong>
-            </article>
-            <article class="metric-card">
-                <span class="metric-label">Tiempo estimado</span>
-                <strong class="metric-value" id="valorDuracion">0 min</strong>
-            </article>
-            <article class="metric-card">
-                <span class="metric-label">Combustible</span>
-                <strong class="metric-value" id="valorLitros">0 L</strong>
-            </article>
-            <article class="metric-card">
-                <span class="metric-label">Gasto gasolina</span>
-                <strong class="metric-value" id="valorCostoCombustible">$0</strong>
-            </article>
-            <article class="metric-card">
-                <span class="metric-label">Peajes</span>
-                <strong class="metric-value" id="valorCostoPeajes">$0</strong>
-            </article>
-            <article class="metric-card total-highlight">
-                <span class="metric-label">Costo total</span>
-                <strong class="metric-value" id="valorCostoTotal">$0</strong>
-            </article>
+            <article class="metric-card"><span class="metric-label">Distancia total</span><strong class="metric-value" id="valorDistancia">0 km</strong></article>
+            <article class="metric-card"><span class="metric-label">Tiempo estimado</span><strong class="metric-value" id="valorDuracion">0 min</strong></article>
+            <article class="metric-card"><span class="metric-label">Combustible</span><strong class="metric-value" id="valorLitros">0 L</strong></article>
+            <article class="metric-card"><span class="metric-label">Gasto gasolina</span><strong class="metric-value" id="valorCostoCombustible">$0</strong></article>
+            <article class="metric-card"><span class="metric-label">Peajes</span><strong class="metric-value" id="valorCostoPeajes">$0</strong></article>
+            <article class="metric-card total-highlight"><span class="metric-label">Costo total</span><strong class="metric-value" id="valorCostoTotal">$0</strong></article>
         </div>
-
         <p id="descripcionRuta" class="route-desc"></p>
-
         <div id="resultadoZonasRojas" class="result-sub-block hidden">
             <h3>🚨 Áreas de riesgo detectadas</h3>
             <ul id="listaZonasRojas"></ul>
         </div>
-
         <div id="resultadoPeajes" class="result-sub-block">
             <h3>🛣️ Casetas y peajes</h3>
             <div id="listaPeajes" class="tolls-mini-list"></div>
         </div>
     </section>
 
-    <!-- ==================== DIÁLOGO: AGREGAR / EDITAR ZONA DE RIESGO ==================== -->
+    <!-- ========== DIÁLOGO ========== -->
     <dialog id="dialogoZona" class="zone-dialog">
         <form id="formularioZona" method="dialog">
             <input id="idZona" type="hidden">
@@ -134,62 +124,99 @@
                     <p class="dialog-eyebrow">Administración de zonas</p>
                     <h2 id="tituloDialogoZona">Registrar nueva área de riesgo</h2>
                 </div>
-                <button id="botonCerrarDialogoZona" class="icon-btn" type="button" aria-label="Cerrar diálogo">✕</button>
+                <button id="botonCerrarDialogoZona" class="icon-btn" type="button">✕</button>
             </header>
-
             <span class="section-label">Nombre del área</span>
             <input id="nombreZona" type="text" maxlength="180" required placeholder="Ej: Carretera federal 45">
-
             <div class="two-columns">
-                <div>
-                    <span class="section-label">Municipio</span>
-                    <input id="municipioZona" type="text" maxlength="180" placeholder="Municipio o localidad">
-                </div>
-                <div>
-                    <span class="section-label">Estado</span>
-                    <input id="estadoZona" type="text" maxlength="180" placeholder="Entidad federativa">
-                </div>
+                <div><span class="section-label">Municipio</span><input id="municipioZona" type="text" maxlength="180" placeholder="Municipio o localidad"></div>
+                <div><span class="section-label">Estado</span><input id="estadoZona" type="text" maxlength="180" placeholder="Entidad federativa"></div>
             </div>
-
             <span class="section-label">Riesgos principales (separados por coma)</span>
             <input id="riesgosZona" type="text" maxlength="400" placeholder="Robo, asalto, secuestro...">
-
             <span class="section-label">Descripción detallada</span>
             <textarea id="descripcionZona" maxlength="800" rows="3" placeholder="Describe los peligros y recomendaciones..."></textarea>
-
             <div class="two-columns">
-                <div>
-                    <span class="section-label">Latitud</span>
-                    <input id="latitudZona" type="number" min="-90" max="90" step="any" required placeholder="00.000000">
-                </div>
-                <div>
-                    <span class="section-label">Longitud</span>
-                    <input id="longitudZona" type="number" min="-180" max="180" step="any" required placeholder="-00.000000">
-                </div>
+                <div><span class="section-label">Latitud</span><input id="latitudZona" type="number" min="-90" max="90" step="any" required placeholder="00.000000"></div>
+                <div><span class="section-label">Longitud</span><input id="longitudZona" type="number" min="-180" max="180" step="any" required placeholder="-00.000000"></div>
             </div>
-
             <span class="section-label">Radio de cobertura (metros)</span>
             <input id="radioZona" type="number" min="50" max="50000" step="50" value="500" required>
-
             <p id="estadoFormularioZona" class="map-hint"></p>
-
             <footer class="dialog-actions">
                 <button id="botonEliminarZona" class="btn btn-danger btn-sm hidden" type="button">🗑️ Eliminar área</button>
                 <span class="dialog-spacer"></span>
-                <button id="botonCancelarZona" class="btn btn-secondary btn-sm" type="button">Cancelar</button>
+                <button id="botonCancelarZona" class="btn btn-outline btn-sm" type="button">Cancelar</button>
                 <button class="btn btn-primary btn-sm" type="submit">💾 Guardar cambios</button>
             </footer>
         </form>
     </dialog>
 
-    <!-- Scripts (lógica sin cambios) -->
+    <!-- Scripts originales (sin cambios) -->
     <script src="{{ url_for('static', filename='js/aplicacion.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mapa.js') }}"></script>
     <script src="{{ url_for('static', filename='js/zonas.js') }}"></script>
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key={{ clave_api_google }}&loading=async&libraries=places,geometry&callback=iniciarMapa"
-        async
-        defer>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ clave_api_google }}&loading=async&libraries=places,geometry&callback=iniciarMapa" async defer></script>
+
+    <!-- Interactividad de paneles y ordenación -->
+    <script>
+        (function() {
+            const panelIzquierdo = document.getElementById('panelControl');
+            const panelDerecho = document.getElementById('panelZonas');
+            const panelResultados = document.getElementById('panelResultados');
+            const btnAbrirIzq = document.getElementById('botonAbrirPanelIzquierdo');
+            const btnCerrarIzq = document.getElementById('botonCerrarPanelIzquierdo');
+            const btnAbrirDer = document.getElementById('botonAbrirPanelDerecho');
+            const btnCerrarDer = document.getElementById('botonCerrarPanelDerecho');
+            const btnAbrirRes = document.getElementById('botonAbrirResultados');
+            const btnCerrarRes = document.getElementById('botonCerrarResultados');
+
+            function togglePanel(panel, floatingBtn, forceClose = false) {
+                if (forceClose || !panel.classList.contains('closed')) {
+                    panel.classList.add('closed');
+                    if (floatingBtn) floatingBtn.classList.remove('hidden');
+                } else {
+                    panel.classList.remove('closed');
+                    if (floatingBtn) floatingBtn.classList.add('hidden');
+                }
+            }
+
+            panelIzquierdo.classList.remove('closed');
+            panelDerecho.classList.remove('closed');
+            panelResultados.classList.remove('closed');
+
+            btnCerrarIzq.addEventListener('click', () => togglePanel(panelIzquierdo, btnAbrirIzq));
+            btnAbrirIzq.addEventListener('click', () => togglePanel(panelIzquierdo, btnAbrirIzq));
+            btnCerrarDer.addEventListener('click', () => togglePanel(panelDerecho, btnAbrirDer));
+            btnAbrirDer.addEventListener('click', () => togglePanel(panelDerecho, btnAbrirDer));
+            btnCerrarRes.addEventListener('click', () => {
+                panelResultados.classList.add('closed');
+                btnAbrirRes.classList.remove('hidden');
+            });
+            btnAbrirRes.addEventListener('click', () => {
+                panelResultados.classList.remove('closed');
+                btnAbrirRes.classList.add('hidden');
+            });
+
+            const observer = new MutationObserver(() => {
+                if (!panelResultados.classList.contains('hidden') && !panelResultados.classList.contains('closed')) {
+                    btnAbrirRes.classList.add('hidden');
+                }
+            });
+            observer.observe(panelResultados, { attributes: true, attributeFilter: ['class'] });
+
+            const sortableContainer = document.getElementById('sortableSections');
+            if (sortableContainer) {
+                new Sortable(sortableContainer, {
+                    animation: 200,
+                    handle: '.form-section-draggable',
+                    ghostClass: 'sortable-ghost'
+                });
+            }
+
+            const botonOriginal = document.getElementById('botonAbrirPanel');
+            if (botonOriginal) botonOriginal.style.display = 'none';
+        })();
     </script>
 </body>
 </html>
