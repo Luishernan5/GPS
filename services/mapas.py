@@ -53,6 +53,7 @@ def geocodificar(direccion, clave_api, tiempo_espera=35):
     contenido = respuesta.json()
 
     if contenido.get("status") != "OK" or not contenido.get("results"):
+        print("RESPUESTA GEOCODING:", contenido)
         detalle = contenido.get("error_message") or contenido.get("status") or "sin resultados"
         raise ErrorGoogleMaps(f"No se encontró la dirección: {detalle}.")
 
