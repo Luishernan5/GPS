@@ -282,9 +282,6 @@ def calcular_viaje(
 
     # Reducir puntos para evitar timeout en rutas largas
     puntos_ruta = puntos_ruta[::10]
-    
-    peajes, fuente_peajes = encontrar_peajes(seleccionada, clave_api, tiempo_espera)
-    zonas_intersectadas = zonas_intersectan_ruta(puntos_ruta, zonas)
 
     peajes, fuente_peajes = encontrar_peajes(seleccionada, clave_api, tiempo_espera)
     zonas_intersectadas = zonas_intersectan_ruta(puntos_ruta, zonas)
